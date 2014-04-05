@@ -1,0 +1,35 @@
+% File 'switch'
+step(0..maxstep).
+astep(0..maxstep-1).
+
+#domain step(ST).
+#domain astep(T).
+
+device(d1).
+device(d2).
+
+switch(a).
+switch(b).
+
+#domain device(X).
+#domain switch(S).
+
+{on(X,0),off(X,0)}.
+
+{toggle(S,T)}.
+
+off(X,T+1) :- on(X,T), toggle(S,T), controls(S,X).
+on(X,T+1) :- off(X,T), toggle(S,T), controls(S,X).
+
+{on(X,T+1)} :- on(X,T).
+{off(X,T+1)} :- off(X,T).
+
+controls(a,d1).
+controls(b,d2).
+
+:- not 1{on(X,ST), off(X,ST)}1.
+
+#hide.
+#show on/2.
+#show off/2.
+#show toggle/2.

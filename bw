@@ -1,0 +1,82 @@
+% File 'bw'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% sort and object declaration
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+step(0..maxstep).
+astep(0..maxstep-1).
+#domain step(ST).
+#domain astep(T).
+#domain block(B).
+#domain block(B1).
+#domain location(L).
+#domain location(L1).
+
+% every block is a location
+location(B) :- block(B).
+
+% the table is a location
+location(table).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% state description
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% on(B,L) is a function from B to L
+
+% uniqueness constraint
+:- not 1{on(B,LL,ST): location(LL)}1.
+
+% two blocks can't be on the same block at the same time
+:- 2{on(BB,B,ST): block(BB)}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% effect and preconditions of action
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% effect of moving a block
+on(B,L,T+1) :- move(B,L,T).
+
+% concurrent actions are limited by the number of grippers
+:- not {move(BB,LL,T): block(BB): location(LL)} grippers.
+
+% a block can be moved only when it is clear
+:- move(B,L,T), on(B1,B,T).
+
+% a block can't be moved onto a block that is being moved also
+:- move(B,B1,T), move(B1,L,T).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% domain independent axioms
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% fluents are initially exogenous
+{on(B,L,0)}.
+
+% actions are exogenous
+{move(BB,LL,T): block(BB): location(LL)}.
+
+% commonsense law of inertia
+{on(B,L,T+1)} :- on(B,L,T).
+
+%%%%%%%%%%%%%%%%%%%
+% Planning problem
+%%%%%%%%%%%%%%%%%%%
+block(1..6).
+
+% initial state
+:- not on(1,2,0).
+:- not on(2,table,0).
+:- not on(3,4,0).
+:- not on(4,table,0).
+:- not on(5,6,0).
+:- not on(6,table,0).
+
+% goal condition
+:- not on(3,2,maxstep).
+:- not on(2,1,maxstep).
+:- not on(1,table,maxstep).
+:- not on(6,5,maxstep).
+:- not on(5,4,maxstep).
+:- not on(4,table,maxstep).
+
+#hide.
+#show move/3.
+

@@ -1,0 +1,7 @@
+# The following command is used to find all states of the transition system.
+clingo switch -c maxstep=0 0
+
+# The following command is used to find all transitions.
+clingo switch -c maxstep=1 0
+
+
