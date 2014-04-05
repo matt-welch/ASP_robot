@@ -1,35 +1,58 @@
 % File 'switch'
+
+% time steps (states) go from 0 to maxstep (a CLI parameter maxstep=N)
 step(0..maxstep).
+% there are maxstep-1 actions between the states
 astep(0..maxstep-1).
 
+% define the domain of the steps as the variable ST
 #domain step(ST).
+% define the domain of the actions as the variable T
 #domain astep(T).
 
+% d1 is a device
 device(d1).
+% d2 is a device
 device(d2).
 
+% a is a switch
 switch(a).
+% b is a switch
 switch(b).
 
+% X is the domain of the set of devices
 #domain device(X).
+% S is the domain of the set of switches
 #domain switch(S).
 
+% arbitrarily chose that X may be on or off at T=0
 {on(X,0),off(X,0)}.
 
+% arbitrarily choose to toggle switch at each action
 {toggle(S,T)}.
 
+% device is off if it was on at T & switch is toggled @ T & switch S controls device X
 off(X,T+1) :- on(X,T), toggle(S,T), controls(S,X).
+% device is on if it was off at T & switch is toggled @ T & switch S controls device X
 on(X,T+1) :- off(X,T), toggle(S,T), controls(S,X).
 
+% common sense law of inertia (on stays on and off stays off)
 {on(X,T+1)} :- on(X,T).
 {off(X,T+1)} :- off(X,T).
 
+% switch a controls device d1
 controls(a,d1).
+% switch b controls device d2
 controls(b,d2).
 
 :- not 1{on(X,ST), off(X,ST)}1.
-
 #hide.
 #show on/2.
 #show off/2.
 #show toggle/2.
+
+%%% planning
+%:- on(X,0).
+%:- not on(X,maxstep).
+
+%:- not 1{toggle(SS,T): switch(SS)}1.
