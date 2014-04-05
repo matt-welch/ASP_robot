@@ -54,10 +54,14 @@ controls(b,d2).
 #show toggle/2.
 
 %% planning
-% remove when X is on at T=0
-:- on(X,0).
-% remove when X is not on at T=maxstep
-:- not on(X,maxstep).
+% Problem 2:  start on, end off, only 1 action per round, find minimum possible length
 
-% remove when not exactly 1 switch toggled
-:- not 1{toggle(SS,T): switch(SS)}1.
+% want on @ T=0 so remove answer sets where switches are off @ 0 
+:- off(X,0).
+% want off @ T=maxstep so remove answer sets where switches are on @ end
+:- on(X,maxstep).
+% remove when maximum of 1 switch toggled per step
+:- not 0{toggle(SS,T): switch(SS)}1.
+
+% to find the minimum possible length, the answer sets must be solved at multiple values of maxstep
+% minimum length = 2

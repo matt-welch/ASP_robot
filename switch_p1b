@@ -54,10 +54,22 @@ controls(b,d2).
 #show toggle/2.
 
 %% planning
-% remove when X is on at T=0
-:- on(X,0).
-% remove when X is not on at T=maxstep
-:- not on(X,maxstep).
+% Problem 1b:  toggle switch a, then toggle both, end with d1 & d2 on
+% remove answer sets where switches are off to end
+:- off(X,maxstep).
 
-% remove when not exactly 1 switch toggled
-:- not 1{toggle(SS,T): switch(SS)}1.
+%% remove sets where b is toggled on T0 (only toggle a @ T=0)
+%:- toggle(SS,0), SS=b.
+%:- not toggle(SS,0), SS=a.
+% OR
+% only toggle one switch @ T=0, SS is a
+:- not 1{toggle(SS,0): switch(SS)}1, SS=a.
+:- toggle(SS,0), SS=b.
+%
+%% remove sets where a & b are not toggled @ T=1
+%%:- not toggle(SS,1),SS=a.
+%%:- not toggle(SS,1),SS=b.
+% OR 
+%% remove sets where 2 switches are not toggled at T=1
+:- not 2{toggle(SS,1): switch(SS)}2.
+
