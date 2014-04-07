@@ -1,7 +1,24 @@
 # The following command is used to find all states of the transition system.
-clingo switch -c maxstep=0 0
+./clingo switch -c maxstep=0 0
 
 # The following command is used to find all transitions.
-clingo switch -c maxstep=1 0
+./clingo switch -c maxstep=1 0
 
+# run switch to find a solution
+./clingo switch -c maxstep=2 0
+
+# problem 1a: The devices d1 and d2 are currently on. If we toggle switch a and then toggle switches a and b simultaneously, what can you say about the resulting state? Instruct clingo to answer this question.
+./clingo switch_p1a -c maxstep=2 0
+
+# problem 1b: We toggled switch a, and then toggled switches a and b simultaneously. In the resulting state the devices d1 and d2 are on. What can you say about the initial state? Instruct clingo to answer this question.
+./clingo switch_p1b -c maxstep=2 0
+
+# Problem 2. The devices d1 and d2 are currently on, and we would like both of them to be o. This goal is to be achieved without performing more than one action at a time. Instruct clingo to nd all solutions that have the minimal possible length.
+./clingo switch_2 -c maxstep=1 0 # unsatisfiable
+./clingo switch_2 -c maxstep=2 0 # satisfiable
+
+# blockworld
+clingo bw -c maxstep=3 -c grippers=2 0
+
+# Problem 3. Modify the file blocks to reflect the assumption that the table is small, so that the number of blocks that can be placed on the table simultaneously is limited by a given constant. How many steps are required to solve the example problem above if only 4 blocks can be on the table at the same time? What if only 3?
 

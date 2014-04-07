@@ -29,6 +29,15 @@ location(table).
 % two blocks can't be on the same block at the same time
 :- 2{on(BB,B,ST): block(BB)}.
 
+% limit the number of places on the table that the blocks can be placed
+% no more than 3 blocks may be on the table at the same time
+:- 4{on(BB,table,ST): block(BB)}.
+
+% doesn't work for limiting places on the table
+%:- not 0{location(L)}1.
+%:- L>10.
+%location(1..8).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % effect and preconditions of action
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

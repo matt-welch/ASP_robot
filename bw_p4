@@ -44,6 +44,10 @@ on(B,L,T+1) :- move(B,L,T).
 % a block can't be moved onto a block that is being moved also
 :- move(B,B1,T), move(B1,L,T).
 
+% serialize block movement: 
+% no block may be moved onto a block that was moved last
+%:- move(B,L,T), move(B1,B2,T), on(B,B3,T).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % domain independent axioms
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -59,23 +63,41 @@ on(B,L,T+1) :- move(B,L,T).
 %%%%%%%%%%%%%%%%%%%
 % Planning problem
 %%%%%%%%%%%%%%%%%%%
-block(1..6).
+% use digits 1..15 to represent letters a..o
+% 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+% a  b  c  d  e  f  g  h  i  j  k  l  m  n  o
+
+block(1..15).
 
 % initial state
-:- not on(1,2,0).
-:- not on(2,table,0).
-:- not on(3,4,0).
-:- not on(4,table,0).
-:- not on(5,6,0).
-:- not on(6,table,0).
+:- not on(13, table, 0).
+:- not on(12, 13, 0).
+:- not on( 1, 12, 0).
+:- not on( 2,  1, 0).
+:- not on( 3,  2, 0).
+:- not on(15, table, 0).
+:- not on(14, 15, 0).
+:- not on( 4, 14, 0).
+:- not on( 5,  4, 0).
+:- not on(10,  5, 0).
+:- not on(11, 10, 0).
+:- not on( 6, table, 0).
+:- not on( 7,  6, 0).
+:- not on( 8,  7, 0).
+:- not on( 9,  8, 0).
 
 % goal condition
-:- not on(3,2,maxstep).
-:- not on(2,1,maxstep).
-:- not on(1,table,maxstep).
-:- not on(6,5,maxstep).
-:- not on(5,4,maxstep).
-:- not on(4,table,maxstep).
+:- not on( 5, 10, maxstep).
+:- not on( 1,  5, maxstep).
+:- not on(14,  1, maxstep).
+:- not on( 9,  4, maxstep).
+:- not on( 8,  9, maxstep).
+:- not on(13,  8, maxstep).
+:- not on(15, 13, maxstep).
+:- not on(11,  7, maxstep).
+:- not on( 3, 11, maxstep).
+:- not on( 2,  3, maxstep).
+:- not on(12,  2, maxstep).
 
 #hide.
 #show move/3.
