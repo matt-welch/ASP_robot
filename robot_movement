@@ -1,0 +1,48 @@
+% file 'robot'
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% object declaration
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+step(0..maxstep).
+astep(0..maxstep-1).
+axis(1..6).
+% corresponds to directions (none, left, up, right, down)
+% move(0) means do nothing
+direction(0..4).
+robot(r1).
+
+#domain step(ST).
+#domain astep(T).
+#domain direction(D).
+
+% 2-dimensional maze
+#domain axis(X).
+#domain axis(XX).
+#domain axis(Y).
+#domain axis(YY).
+#domain robot(R).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% state description
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% a function mapping from robot and position to time
+1{ron(R,X,Y,ST) : axis(X) : axis(Y): step(ST)}1 :- robot(R).
+
+% arbitrarily chose if the robot moves @ each T
+{move(R,D,T)}.
+
+% a function describing robot movement
+1{move(R,D,T): direction(D)}1.
+% effects of robot movement
+ron(R,X-1,  Y,T+1) :- move(R,1,T).
+ron(R,  X,Y+1,T+1) :- move(R,2,T).
+ron(R,X+1,  Y,T+1) :- move(R,3,T).
+ron(R,  X,Y-1,T+1) :- move(R,4,T).
+
+%%%%%%%%%%%%%%%
+% constraints
+%%%%%%%%%%%%%%%
+% uniqueness constraint for all locations, a robot may only be on one location at a time
+:- not 1{ron(R,X,Y,ST): axis(X) : axis(Y) }1.
+
+% initial conditions
+%:- not ron(R,1,1,0).
