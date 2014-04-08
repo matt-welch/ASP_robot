@@ -53,11 +53,11 @@ controls(b,d2).
 #show off/2.
 #show toggle/2.
 
-%% planning
-% remove when X is on at T=0
-:- on(X,0).
-% remove when X is not on at T=maxstep
-:- not on(X,maxstep).
-
-% remove when not exactly 1 switch toggled
-:- not 1{toggle(SS,T): switch(SS)}1.
+%%% planning
+%% remove when X is on at T=0
+%:- on(X,0).
+%% remove when X is not on at T=maxstep
+%:- not on(X,maxstep).
+%
+%% remove when not exactly 1 switch toggled
+%:- not 1{toggle(SS,T): switch(SS)}1.

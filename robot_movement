@@ -7,7 +7,7 @@ astep(0..maxstep-1).
 axis(1..6).
 % corresponds to directions (none, left, up, right, down)
 % move(0) means do nothing
-direction(0..4).
+direction(1..4).
 robot(r1).
 
 #domain step(ST).
@@ -25,24 +25,44 @@ robot(r1).
 % state description
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % a function mapping from robot and position to time
-1{ron(R,X,Y,ST) : axis(X) : axis(Y): step(ST)}1 :- robot(R).
-
-% arbitrarily chose if the robot moves @ each T
-{move(R,D,T)}.
+% for every robot,R, and time step ST, chose exactly one x and y position
+1{ron(R,X1,Y1,ST) : axis(X1) : axis(Y1)}1 :- robot(R), step(ST).
 
 % a function describing robot movement
-1{move(R,D,T): direction(D)}1.
-% effects of robot movement
-ron(R,X-1,  Y,T+1) :- move(R,1,T).
-ron(R,  X,Y+1,T+1) :- move(R,2,T).
-ron(R,X+1,  Y,T+1) :- move(R,3,T).
-ron(R,  X,Y-1,T+1) :- move(R,4,T).
+% for every robot,R, and time step ST, chose exactly one movement
+1{move(R,D1,T): direction(D1)}1 :- robot(R), astep(T).
 
-%%%%%%%%%%%%%%%
-% constraints
-%%%%%%%%%%%%%%%
+% effects of robot movement
+ron(R,X-1,  Y,T+1) :- move(R,1,T), ron(R,X,Y,T).
+ron(R,  X,Y+1,T+1) :- move(R,2,T), ron(R,X,Y,T).
+ron(R,X+1,  Y,T+1) :- move(R,3,T), ron(R,X,Y,T).
+ron(R,  X,Y-1,T+1) :- move(R,4,T), ron(R,X,Y,T).
+
+% restricing X here
+:- move(R,1,T), ron(R,1,Y,T).
+:- move(R,2,T), ron(R,X,6,T).
+:- move(R,3,T), ron(R,6,Y,T).
+:- move(R,4,T), ron(R,X,1,T).
+
+%%%%%%%%%%%%%%%%
+%% constraints
+%%%%%%%%%%%%%%%%
+% in the generation rule above
 % uniqueness constraint for all locations, a robot may only be on one location at a time
-:- not 1{ron(R,X,Y,ST): axis(X) : axis(Y) }1.
+%:- not 1{ron(R,X1,Y1,ST): axis(X1) : axis(Y1) }1 .
+
+% in the generation rule above
+% % uniqueness constraint for movement - only one direction at a time
+%:- not 1{move(R,D,T)}1.
 
 % initial conditions
-%:- not ron(R,1,1,0).
+:- not ron(R,1,1,0).
+
+% final conditions
+%:- not ron(R,5,5,maxstep).
+
+#hide axis/1.
+#hide robot/1.
+#hide step/1.
+#hide astep/1.
+#hide direction/1.
