@@ -10,13 +10,13 @@ object(1).
 % corresponds to directions (none, left, up, right, down)
 % move(0) means do nothing
 direction(0..4).
-location(1..36).
+%location(1..36).
 goal(1).
 
 #domain step(ST).
 #domain astep(T).
 #domain robot(R).
-#domain robot(R).
+#domain robot(R1).
 #domain object(OB).
 #domain object(OB1).
 #domain goal(G).
@@ -27,8 +27,8 @@ goal(1).
 #domain axis(XX).
 #domain axis(YY).
 #domain axis(Y).
-#domain location(L).
-#domain location(L1).
+%#domain location(L).
+%#domain location(L1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % state description
@@ -56,15 +56,15 @@ goal(1).
 %% effect and preconditions of action
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % effect of picking up an object when the robot doesn't have object is that it then has it
-has(OB,R,T+1) :- pickup(OB,R,T), not has(OB,R,T).
+has(OB,R,T+1) :- pickup(OB,R,T), not has(OB,R,T), on(OB,X,Y,T), ron(R,XX,YY,T), X==XX, Y==YY.
 % if robot has object and robot moves, object moves likewise
-move(OB,D,T):- move(R,D,T), has(OB,R,T).
+%move(OB,D,T):- move(R,D,T), has(OB,R,T).
 
 % robot may only pickup an object if they are co-located
 %:- pickup(OB,R,T), on(OB,X,Y,T), ron(R,XX,YY,T), XX!=X, YY!=Y.
 
 % when robot places an object, it obtains the location of the robot
-on(OB,X,Y,T+1) :- place(OB,R,T).
+on(OB,X,Y,T+1) :- place(OB,R,T), ron(R,X,Y,T).
 
 % cannot place an object if robot does not have it
 %:- place(OB,R,T), not has(OB,R,T).
@@ -162,9 +162,8 @@ ron(R,  X,Y-1,T+1) :- move(R,4,T).
 % test case
 % start conditions
 :- not on(OB,3,5,0).
-:- not ron( R,4,1,0).
+:- not ron(R,4,1,0).
 %:- not on( G,2,2,T).
 % end conditions
 :- not on(OB,2,2,maxstep).
-:- not ron(R,2,2,maxstep).
 
