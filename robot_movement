@@ -37,8 +37,9 @@ ron(R,X-1,  Y,T+1) :- move(R,1,T), ron(R,X,Y,T).
 ron(R,  X,Y+1,T+1) :- move(R,2,T), ron(R,X,Y,T).
 ron(R,X+1,  Y,T+1) :- move(R,3,T), ron(R,X,Y,T).
 ron(R,  X,Y-1,T+1) :- move(R,4,T), ron(R,X,Y,T).
+%ron(R,  X,  Y,T+1) :- not move(R,D,T), ron(R,X,Y,T).
 
-% restricing X here
+% restrict movement when at the edges of the area
 :- move(R,1,T), ron(R,1,Y,T).
 :- move(R,2,T), ron(R,X,6,T).
 :- move(R,3,T), ron(R,6,Y,T).
@@ -59,7 +60,13 @@ ron(R,  X,Y-1,T+1) :- move(R,4,T), ron(R,X,Y,T).
 :- not ron(R,1,1,0).
 
 % final conditions
-%:- not ron(R,5,5,maxstep).
+%:- not ron(R,1,2,maxstep).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% domain independent axioms
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%{on(O,X,Y,T+1)} :- on(O,X,Y,T).
 
 #hide axis/1.
 #hide robot/1.
