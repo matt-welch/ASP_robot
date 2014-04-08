@@ -4,3 +4,7 @@
 # clingo itself
 clingo
 
+*.tar.gz
+*.docx
+*.pdf
+*/
