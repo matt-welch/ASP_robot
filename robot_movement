@@ -66,6 +66,9 @@ has(R,OB,true,T+1)   :- pickup(R,OB,T).
 isheld(OB,false,T+1) :- place(R,OB,T).
 has(R,OB,false,T+1)  :- place(R,OB,T).
 
+%% add constraints to prevent having an object in the next time step if robot places it in T
+%:- has(R,OB,true,T+1),  place(R,OB,T).
+%:- has(R,OB,false,T+1), pickup(R,OB,T).
 % not has after place
 has(R,OB1,true, T+1)  :- has(R,OB1,true,T),   not place(R,OB1,T).
 has(R,OB1,false,T+1)  :- has(R,OB1,false,T),  not pickup(R,OB1,T).
@@ -83,37 +86,34 @@ isheld(OB1,true, T+1) :- isheld(OB1,true,T),  pickup(R,OB1,T).
 isheld(OB1,false,T+1) :- isheld(OB1,false,T), place(R,OB1,T).
 
 on(OB1,X,Y,T+1) :- move(R,D,T), has(R,OB1,true,T), ron(R,X,Y,T+1).
-:- pickup(R,OB,T), ron(R,X,Y,T), on(OB,XX,YY,T), XX!=X, YY!=Y.
+:- pickup(R,OB,T), ron(R,X,Y,T), on(OB,XX,YY,T), XX!=X.
+:- pickup(R,OB,T), ron(R,X,Y,T), on(OB,XX,YY,T), YY!=Y.
 :- pickup(R,OB,T), move(R,D,T).
 :- pickup(R,OB,T), place(R,OB,T).
-:- place(R,OB,T), move(R,D,T).
+:- place(R,OB,T),  move(R,D,T).
 
-% add constraints to prevent having an object in the next time step if robot places it in T
-:- has(R,OB,true,T+1),  place(R,OB,T).
-:- has(R,OB,false,T+1), pickup(R,OB,T).
-
-%has(R,OB1,false,ST+1) :- place(R,OB1,T), has(R,OB1,true,ST).
-%has(R,OB1,true,ST+1)  :- pickup(R,OB1,T), has(R,OB1,false,ST).
-
-% TODO: define move+has to move object
 
 %%%%%%%%%%%%%%%%
 %% constraints
 %%%%%%%%%%%%%%%%
 % in the generation rule above
 % uniqueness constraint for all locations, a robot may only be on one location at a time
-%:- not 1{ron(R,X1,Y1,ST): axis(X1) : axis(Y1) }1 .
+:- not 1{ron(R,X1,Y1,ST): axis(X1) : axis(Y1) }1 .
 
 % in the generation rule above
 % % uniqueness constraint for movement - only one direction at a time
-%:- not 1{move(R,D,T)}1.
+:- not 1{move(R,D,T)}1.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% domain independent axioms
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ron(R,X,Y,T+1) :- not move(R,D,T), ron(R,X,Y,T).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% domain independent axioms
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % actions are exogenous
-% {move(R,X,Y,T) : axis(X) : axis(Y)}.
+{move(R,X,Y,T) : axis(X) : axis(Y)}.
+{place(R,OB,T)}.
+{pickup(R,OB,T)}.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % planning
