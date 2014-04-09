@@ -37,7 +37,7 @@ object(a).
 
 % a function describing robot movement
 % for every robot,R, and time step ST, chose exactly one movement
-1{move(R,D1,T): direction(D1)}1 :- robot(R), astep(T).
+0{move(R,D1,T): direction(D1)}1 :- robot(R), astep(T).
 
 % effects of robot movement
 ron(R,  X,  Y,T+1) :- move(R,0,T), ron(R,X,Y,T).
@@ -54,13 +54,18 @@ ron(R,  X,Y-1,T+1) :- move(R,4,T), ron(R,X,Y,T).
 
 % functions to control objects
 1{has(R,OBa,Bool,ST): object(OBa): boolean(Bool)}1 :- robot(R), step(ST).
-%0{pickup(R,OBa,T): object(OBa)}1 :- robot(R), astep(T).
-%0{place(R,OBa,T):  object(OBa)}1 :- robot(R), astep(T).
+0{pickup(R,OBa,T): object(OBa)}1 :- robot(R), astep(T).
+0{place(R,OBa,T):  object(OBa)}1 :- robot(R), astep(T).
 1{on(OB,X1,Y1,ST): axis(X1): axis(Y1)}1 :- object(OB), step(ST).
 on(OB,X,Y,ST+1):-on(OB,X,Y,ST).
 
 has(R,OB1,true,ST+1)  :- has(R,OB1,true,ST).
 has(R,OB1,false,ST+1)  :- has(R,OB1,false,ST).
+:- pickup(R,OB,T), ron(R,X,Y,T), on(OB,XX,YY,T), XX!=X, YY!=Y.
+:- pickup(R,OB,T), move(R,D,T).
+:- pickup(R,OB,T), place(R,OB,T).
+:- place(R,OB,T), move(R,D,T).
+
 %has(R,OB1,false,ST+1) :- place(R,OB1,T), has(R,OB1,true,ST).
 %has(R,OB1,true,ST+1)  :- pickup(R,OB1,T), has(R,OB1,false,ST).
 
@@ -150,7 +155,7 @@ has(R,OB1,false,ST+1)  :- has(R,OB1,false,ST).
 :- has(R,OB,true,0).
 
 % final conditions
-:- not ron(R,3,5,maxstep).
+:- not ron(R,3,6,maxstep).
 
 % hide variables that are constants
 #hide axis/1.
