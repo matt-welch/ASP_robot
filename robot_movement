@@ -8,7 +8,7 @@ axis(1..6).
 % corresponds to directions (none, left, up, right, down)
 % move(0) means do nothing
 direction(1..4).
-robot(r1).
+robot(ra).
 boolean(true;false).
 
 #domain step(ST).
@@ -53,13 +53,14 @@ ron(R,  X,Y-1,T+1) :- move(R,4,T), ron(R,X,Y,T).
 :- move(R,4,T), ron(R,X,1,T).
 
 % functions to control objects
-%1{has(R,OBa,B,ST): object(OBa)}1 :- robot(R), step(ST), boolean(B).
+1{has(R,OBa,Bool,ST): object(OBa): boolean(Bool)}1 :- robot(R), step(ST).
 %0{pickup(R,OBa,T): object(OBa)}1 :- robot(R), astep(T).
 %0{place(R,OBa,T):  object(OBa)}1 :- robot(R), astep(T).
 1{on(OB,X1,Y1,ST): axis(X1): axis(Y1)}1 :- object(OB), step(ST).
 on(OB,X,Y,ST+1):-on(OB,X,Y,ST).
 
-%has(R,OB1,true,ST+1)  :- has(R,OB1,true,ST).
+has(R,OB1,true,ST+1)  :- has(R,OB1,true,ST).
+has(R,OB1,false,ST+1)  :- has(R,OB1,false,ST).
 %has(R,OB1,false,ST+1) :- place(R,OB1,T), has(R,OB1,true,ST).
 %has(R,OB1,true,ST+1)  :- pickup(R,OB1,T), has(R,OB1,false,ST).
 
@@ -146,6 +147,7 @@ on(OB,X,Y,ST+1):-on(OB,X,Y,ST).
 % initial conditions
 :- not ron(R,4,1,0).
 :- not on(OB,3,5,0).
+:- has(R,OB,true,0).
 
 % final conditions
 :- not ron(R,3,5,maxstep).
