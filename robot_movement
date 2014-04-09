@@ -7,8 +7,9 @@ astep(0..maxstep-1).
 axis(1..6).
 % corresponds to directions (none, left, up, right, down)
 % move(0) means do nothing
-direction(0..4).
+direction(1..4).
 robot(r1).
+boolean(true;false).
 
 #domain step(ST).
 #domain astep(T).
@@ -20,6 +21,12 @@ robot(r1).
 #domain axis(Y).
 #domain axis(YY).
 #domain robot(R).
+#domain boolean(B).
+
+% variables describing objects
+object(a).
+#domain object(OB).
+#domain object(OB1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % state description
@@ -45,6 +52,20 @@ ron(R,  X,Y-1,T+1) :- move(R,4,T), ron(R,X,Y,T).
 :- move(R,3,T), ron(R,6,Y,T).
 :- move(R,4,T), ron(R,X,1,T).
 
+% functions to control objects
+%1{has(R,OBa,B,ST): object(OBa)}1 :- robot(R), step(ST), boolean(B).
+%0{pickup(R,OBa,T): object(OBa)}1 :- robot(R), astep(T).
+%0{place(R,OBa,T):  object(OBa)}1 :- robot(R), astep(T).
+1{on(OB,X1,Y1,ST): axis(X1): axis(Y1)}1 :- object(OB), step(ST).
+on(OB,X,Y,ST+1):-on(OB,X,Y,ST).
+
+%has(R,OB1,true,ST+1)  :- has(R,OB1,true,ST).
+%has(R,OB1,false,ST+1) :- place(R,OB1,T), has(R,OB1,true,ST).
+%has(R,OB1,true,ST+1)  :- pickup(R,OB1,T), has(R,OB1,false,ST).
+
+% TODO: define on() function for objects
+% TODO: add on() requirement for pickup
+% TODO: define move+has to move object
 
 %%%%%%%%%%%%%%%%
 %% constraints
@@ -61,6 +82,8 @@ ron(R,  X,Y-1,T+1) :- move(R,4,T), ron(R,X,Y,T).
 %% domain independent axioms
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %ron(R,X,Y,T+1) :- not move(R,D,T), ron(R,X,Y,T).
+% actions are exogenous
+% {move(R,X,Y,T) : axis(X) : axis(Y)}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % planning
@@ -121,10 +144,11 @@ ron(R,  X,Y-1,T+1) :- move(R,4,T), ron(R,X,Y,T).
 :- ron(R,6,6,T), move(R,4,T).
 
 % initial conditions
-:- not ron(R,1,1,0).
+:- not ron(R,4,1,0).
+:- not on(OB,3,5,0).
 
 % final conditions
-:- not ron(R,6,6,maxstep).
+:- not ron(R,3,5,maxstep).
 
 % hide variables that are constants
 #hide axis/1.
@@ -132,3 +156,5 @@ ron(R,  X,Y-1,T+1) :- move(R,4,T), ron(R,X,Y,T).
 #hide step/1.
 #hide astep/1.
 #hide direction/1.
+#hide boolean/1.
+#hide object/1.
