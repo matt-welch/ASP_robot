@@ -6,7 +6,6 @@ step(0..maxstep).
 astep(0..maxstep-1).
 axis(1..6).
 % corresponds to directions (none, left, up, right, down)
-% move(0) means do nothing
 direction(1..4).
 robot(r1).
 boolean(true;false).
@@ -40,7 +39,6 @@ object(a).
 0{move(R,D1,T): direction(D1)}1 :- robot(R), astep(T).
 
 % effects of robot movement
-%ron(R,  X,  Y,T+1) :- move(R,0,T), ron(R,X,Y,T).
 ron(R,X-1,  Y,T+1) :- move(R,1,T), ron(R,X,Y,T).
 ron(R,  X,Y+1,T+1) :- move(R,2,T), ron(R,X,Y,T).
 ron(R,X+1,  Y,T+1) :- move(R,3,T), ron(R,X,Y,T).
@@ -60,7 +58,7 @@ ron(R,  X,Y-1,T+1) :- move(R,4,T), ron(R,X,Y,T).
 1{isheld(OBa,Bool,ST): object(OBa): boolean(Bool)}1 :- step(ST).
 
 % add an "isheld" object representation
-on(OB,X,Y,ST+1)      :- on(OB,X,Y,ST), isheld(OB,false,ST).
+on(OB,X,Y,T+1)      :- on(OB,X,Y,T), isheld(OB,false,T).
 isheld(OB,true,T+1)  :- pickup(R,OB,T).
 has(R,OB,true,T+1)   :- pickup(R,OB,T).
 isheld(OB,false,T+1) :- place(R,OB,T).
@@ -85,12 +83,15 @@ isheld(OB1,false,T+1) :- isheld(OB1,true,T),  place(R,OB1,T).
 isheld(OB1,true, T+1) :- isheld(OB1,true,T),  pickup(R,OB1,T).
 isheld(OB1,false,T+1) :- isheld(OB1,false,T), place(R,OB1,T).
 
-on(OB1,X,Y,T+1) :- move(R,D,T), has(R,OB1,true,T), ron(R,X,Y,T+1).
+% effect of robot movement on held object 
+on(OB1,X,Y,T+1) :- has(R,OB1,true,T), ron(R,X,Y,T+1).
+% 
 :- pickup(R,OB,T), ron(R,X,Y,T), on(OB,XX,YY,T), XX!=X.
 :- pickup(R,OB,T), ron(R,X,Y,T), on(OB,XX,YY,T), YY!=Y.
 :- pickup(R,OB,T), move(R,D,T).
 :- pickup(R,OB,T), place(R,OB,T).
 :- place(R,OB,T),  move(R,D,T).
+:- place(R,OB,T), has(R,OB,false,T).
 
 
 %%%%%%%%%%%%%%%%
@@ -98,19 +99,22 @@ on(OB1,X,Y,T+1) :- move(R,D,T), has(R,OB1,true,T), ron(R,X,Y,T+1).
 %%%%%%%%%%%%%%%%
 % in the generation rule above
 % uniqueness constraint for all locations, a robot may only be on one location at a time
-:- not 1{ron(R,X1,Y1,ST): axis(X1) : axis(Y1) }1 .
+%:- not 1{ron(R,X1,Y1,ST): axis(X1) : axis(Y1) }1 .
 
 % in the generation rule above
 % % uniqueness constraint for movement - only one direction at a time
-:- not 1{move(R,D,T)}1.
+%:- not 1{move(R,D,T)}1.
 
-ron(R,X,Y,T+1) :- not move(R,D,T), ron(R,X,Y,T).
+% if robot has not moved in ANY of the 4 directions, he is in the same place
+ron(R,X,Y,T+1) :- not move(R,1,T), not move(R,2,T), not move(R,3,T), not move(R,4,T), ron(R,X,Y,T).
+on(OB,X,Y,T+1) :- isheld(OB,false,T), on(OB,X,Y,T).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % domain independent axioms
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % actions are exogenous
-{move(R,X,Y,T) : axis(X) : axis(Y)}.
+{move(R,D,T)}.
 {place(R,OB,T)}.
 {pickup(R,OB,T)}.
 
@@ -118,60 +122,60 @@ ron(R,X,Y,T+1) :- not move(R,D,T), ron(R,X,Y,T).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % planning
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% walls: 
-:- ron(R,1,1,T), move(R,2,T).
-:- ron(R,2,1,T), move(R,2,T).
-:- ron(R,4,1,T), move(R,2,T).
-:- ron(R,4,1,T), move(R,3,T).
-:- ron(R,5,1,T), move(R,1,T).
-:- ron(R,5,1,T), move(R,2,T).
-
-:- ron(R,1,2,T), move(R,4,T).
-:- ron(R,2,2,T), move(R,3,T).
-:- ron(R,2,2,T), move(R,4,T).
-:- ron(R,3,2,T), move(R,1,T).
-:- ron(R,4,2,T), move(R,2,T).
-:- ron(R,4,2,T), move(R,4,T).
-:- ron(R,5,2,T), move(R,2,T).
-:- ron(R,5,2,T), move(R,4,T).
-
-:- ron(R,1,3,T), move(R,2,T).
-:- ron(R,2,3,T), move(R,2,T).
-:- ron(R,4,3,T), move(R,3,T).
-:- ron(R,4,3,T), move(R,4,T).
-:- ron(R,5,3,T), move(R,1,T).
-:- ron(R,5,3,T), move(R,2,T).
-:- ron(R,5,3,T), move(R,4,T).
-:- ron(R,6,3,T), move(R,2,T).
-
-:- ron(R,1,4,T), move(R,2,T).
-:- ron(R,1,4,T), move(R,4,T).
-:- ron(R,2,4,T), move(R,2,T).
-:- ron(R,2,4,T), move(R,4,T).
-:- ron(R,3,4,T), move(R,3,T).
-:- ron(R,4,4,T), move(R,1,T).
-:- ron(R,4,4,T), move(R,2,T).
-:- ron(R,5,4,T), move(R,2,T).
-:- ron(R,5,4,T), move(R,4,T).
-:- ron(R,6,4,T), move(R,4,T).
-
-:- ron(R,1,5,T), move(R,2,T).
-:- ron(R,1,5,T), move(R,4,T).
-:- ron(R,2,5,T), move(R,2,T).
-:- ron(R,2,5,T), move(R,4,T).
-:- ron(R,3,5,T), move(R,3,T).
-:- ron(R,4,5,T), move(R,1,T).
-:- ron(R,4,5,T), move(R,4,T).
-:- ron(R,5,5,T), move(R,2,T).
-:- ron(R,5,5,T), move(R,4,T).
-:- ron(R,6,5,T), move(R,2,T).
-
-:- ron(R,1,6,T), move(R,4,T).
-:- ron(R,2,6,T), move(R,4,T).
-:- ron(R,3,6,T), move(R,3,T).
-:- ron(R,4,6,T), move(R,1,T).
-:- ron(R,5,6,T), move(R,4,T).
-:- ron(R,6,6,T), move(R,4,T).
+%% walls: 
+%:- ron(R,1,1,T), move(R,2,T).
+%:- ron(R,2,1,T), move(R,2,T).
+%:- ron(R,4,1,T), move(R,2,T).
+%:- ron(R,4,1,T), move(R,3,T).
+%:- ron(R,5,1,T), move(R,1,T).
+%:- ron(R,5,1,T), move(R,2,T).
+%
+%:- ron(R,1,2,T), move(R,4,T).
+%:- ron(R,2,2,T), move(R,3,T).
+%:- ron(R,2,2,T), move(R,4,T).
+%:- ron(R,3,2,T), move(R,1,T).
+%:- ron(R,4,2,T), move(R,2,T).
+%:- ron(R,4,2,T), move(R,4,T).
+%:- ron(R,5,2,T), move(R,2,T).
+%:- ron(R,5,2,T), move(R,4,T).
+%
+%:- ron(R,1,3,T), move(R,2,T).
+%:- ron(R,2,3,T), move(R,2,T).
+%:- ron(R,4,3,T), move(R,3,T).
+%:- ron(R,4,3,T), move(R,4,T).
+%:- ron(R,5,3,T), move(R,1,T).
+%:- ron(R,5,3,T), move(R,2,T).
+%:- ron(R,5,3,T), move(R,4,T).
+%:- ron(R,6,3,T), move(R,2,T).
+%
+%:- ron(R,1,4,T), move(R,2,T).
+%:- ron(R,1,4,T), move(R,4,T).
+%:- ron(R,2,4,T), move(R,2,T).
+%:- ron(R,2,4,T), move(R,4,T).
+%:- ron(R,3,4,T), move(R,3,T).
+%:- ron(R,4,4,T), move(R,1,T).
+%:- ron(R,4,4,T), move(R,2,T).
+%:- ron(R,5,4,T), move(R,2,T).
+%:- ron(R,5,4,T), move(R,4,T).
+%:- ron(R,6,4,T), move(R,4,T).
+%
+%:- ron(R,1,5,T), move(R,2,T).
+%:- ron(R,1,5,T), move(R,4,T).
+%:- ron(R,2,5,T), move(R,2,T).
+%:- ron(R,2,5,T), move(R,4,T).
+%:- ron(R,3,5,T), move(R,3,T).
+%:- ron(R,4,5,T), move(R,1,T).
+%:- ron(R,4,5,T), move(R,4,T).
+%:- ron(R,5,5,T), move(R,2,T).
+%:- ron(R,5,5,T), move(R,4,T).
+%:- ron(R,6,5,T), move(R,2,T).
+%
+%:- ron(R,1,6,T), move(R,4,T).
+%:- ron(R,2,6,T), move(R,4,T).
+%:- ron(R,3,6,T), move(R,3,T).
+%:- ron(R,4,6,T), move(R,1,T).
+%:- ron(R,5,6,T), move(R,4,T).
+%:- ron(R,6,6,T), move(R,4,T).
 
 % initial conditions
 :- not ron(r1,4,1,0).
@@ -181,6 +185,7 @@ ron(R,X,Y,T+1) :- not move(R,D,T), ron(R,X,Y,T).
 
 % final conditions
 :- not on(a,2,1,maxstep).
+:- isheld(OB,true,maxstep).
 
 % hide variables that are constants
 #hide axis/1.
