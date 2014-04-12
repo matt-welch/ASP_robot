@@ -1,12 +1,11 @@
-% file 'robot_p2'
+% file 'robot'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % object declaration
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 step(0..maxstep).
 astep(0..maxstep-1).
 axis(1..6).
-% corresponds to directions (none, left, up, right, down)
-direction(1..4).
+direction(left;up;right;down).
 robot(r1).
 boolean(true;false).
 
@@ -23,7 +22,7 @@ boolean(true;false).
 #domain boolean(B).
 
 % variables describing objects
-object(a).
+object(a;b).
 #domain object(OB).
 #domain object(OB1).
 
@@ -35,71 +34,84 @@ object(a).
 1{ron(R,X1,Y1,ST) : axis(X1) : axis(Y1)}1 :- robot(R), step(ST).
 
 % a function describing robot movement
-% for every robot,R, and time step ST, chose exactly one movement
+% for every robot,R, and time step ST, chose no more than one movement
 0{move(R,D1,T): direction(D1)}1 :- robot(R), astep(T).
 
 % effects of robot movement
-ron(R,X-1,  Y,T+1) :- move(R,1,T), ron(R,X,Y,T).
-ron(R,  X,Y+1,T+1) :- move(R,2,T), ron(R,X,Y,T).
-ron(R,X+1,  Y,T+1) :- move(R,3,T), ron(R,X,Y,T).
-ron(R,  X,Y-1,T+1) :- move(R,4,T), ron(R,X,Y,T).
+ron(R,X-1,  Y,T+1) :- move(R,left,T), ron(R,X,Y,T).
+ron(R,  X,Y+1,T+1) :- move(R,up,T), ron(R,X,Y,T).
+ron(R,X+1,  Y,T+1) :- move(R,right,T), ron(R,X,Y,T).
+ron(R,  X,Y-1,T+1) :- move(R,down,T), ron(R,X,Y,T).
 
 % restrict movement when at the edges of the area
-:- move(R,1,T), ron(R,1,Y,T).
-:- move(R,2,T), ron(R,X,6,T).
-:- move(R,3,T), ron(R,6,Y,T).
-:- move(R,4,T), ron(R,X,1,T).
+:- move(R,left,T),  ron(R,1,Y,T).
+:- move(R,up,T),    ron(R,X,6,T).
+:- move(R,right,T), ron(R,6,Y,T).
+:- move(R,down,T),  ron(R,X,1,T).
 
 % functions to control objects
+% this rule  may need to be modified to allow for each object to be held
 1{has(R,OBa,Bool,ST):  object(OBa): boolean(Bool)}1 :- robot(R), step(ST).
 0{pickup(R,OBa,T):     object(OBa)}1 :- robot(R), astep(T).
 0{place(R,OBa,T):      object(OBa)}1 :- robot(R), astep(T).
-1{on(OB,X1,Y1,ST):     axis(X1): axis(Y1)}1 :- object(OB), step(ST).
+1{on(OBa,X1,Y1,ST):    object(OBa): axis(X1): axis(Y1)}1 :- step(ST).
 1{isheld(OBa,Bool,ST): object(OBa): boolean(Bool)}1 :- step(ST).
 
-% add an "isheld" object representation
-on(OB,X,Y,T+1)       :- on(OB,X,Y,T), isheld(OB,false,T).
-isheld(OB,true,T+1)  :- pickup(R,OB,T).
-has(R,OB,true,T+1)   :- pickup(R,OB,T).
-isheld(OB,false,T+1) :- place(R,OB,T).
-has(R,OB,false,T+1)  :- place(R,OB,T).
+% if an object is on X,Y and not held at T, it will still be there at T+1
+% use local OBa to indicate a particular object for each of these effects rather
+% than operating on all objects by using the global OB variable 
+on(OBa,X,Y,T+1)       :- on(OBa,X,Y,T), isheld(OBa,false,T).
+isheld(OBa,true,T+1)  :- pickup(R,OBa,T).
+has(R,OBa,true,T+1)   :- pickup(R,OBa,T).
+isheld(OBa,false,T+1) :- place(R,OBa,T).
+has(R,OBa,false,T+1)  :- place(R,OBa,T).
 
 %% add constraints to prevent having an object in the next time step if robot places it in T
 % not has after place
-has(R,OB,true, T+1)  :- has(R,OB,true,T),   not place(R,OB,T).
-has(R,OB,false,T+1)  :- has(R,OB,false,T),  not pickup(R,OB,T).
-has(R,OB,true, T+1)  :- has(R,OB,false,T),  pickup(R,OB,T).
-has(R,OB,false,T+1)  :- has(R,OB,true,T),   place(R,OB,T).
+% use local OBa to indicate a particular object for each of these effects rather
+% than operating on all objects by using the global OB variable 
+has(R,OBa,true, T+1)  :- has(R,OBa,true,T),   not place(R,OBa,T).
+has(R,OBa,false,T+1)  :- has(R,OBa,false,T),  not pickup(R,OBa,T).
+has(R,OBa,true, T+1)  :- has(R,OBa,false,T),  pickup(R,OBa,T).
+has(R,OBa,false,T+1)  :- has(R,OBa,true,T),   place(R,OBa,T).
 
-isheld(OB,true, T+1) :- isheld(OB,true,T),  not place(R,OB,T).
-isheld(OB,false,T+1) :- isheld(OB,false,T), not pickup(R,OB,T).
-isheld(OB,true, T+1) :- isheld(OB,false,T), pickup(R,OB,T).
-isheld(OB,false,T+1) :- isheld(OB,true,T),  place(R,OB,T).
+isheld(OBa,true, T+1) :- isheld(OBa,true,T),  not place(R,OBa,T).
+isheld(OBa,false,T+1) :- isheld(OBa,false,T), not pickup(R,OBa,T).
+isheld(OBa,true, T+1) :- isheld(OBa,false,T), pickup(R,OBa,T).
+isheld(OBa,false,T+1) :- isheld(OBa,true,T),  place(R,OBa,T).
 % need to add extra condition for two robots holding the object
 
 % unnecessary??
 % an object is still held @ T+1 if it is held @ T and picked up @ T
-isheld(OB1,true, T+1) :- isheld(OB1,true,T),  pickup(R,OB1,T).
+isheld(OBa,true, T+1) :- isheld(OBa,true,T),  pickup(R,OBa,T).
 % an object is still not held @ T+1 if it is not held @ T and placed @ T
-isheld(OB1,false,T+1) :- isheld(OB1,false,T), place(R,OB1,T).
+isheld(OBa,false,T+1) :- isheld(OBa,false,T), place(R,OBa,T).
 
 % effect of robot movement on held object 
-on(OB1,X,Y,T+1) :- has(R,OB1,true,T), ron(R,X,Y,T+1).
+on(OBa,X,Y,T+1) :- has(R,OBa,true,T), ron(R,X,Y,T+1).
 
 % robot cannot pickup an object if it is not in the same column
-:- pickup(R,OB,T), ron(R,X,Y,T), on(OB,XX,YY,T), XX!=X.
+% use local to refer to that object
+:- pickup(R,OBa,T), ron(R,X,Y,T), on(OBa,XX,YY,T), XX!=X.
 % robot cannot pickup an object if it is not in the same row
-:- pickup(R,OB,T), ron(R,X,Y,T), on(OB,XX,YY,T), YY!=Y.
-% robot cannot pickup an object and move in the same turn
+:- pickup(R,OBa,T), ron(R,X,Y,T), on(OBa,XX,YY,T), YY!=Y.
+
+% following rules use the global OB indicating that a robot cannot simultaneously 
+% work on multiple objects
+% robot cannot pickup any object and move in the same turn
 :- pickup(R,OB,T), move(R,D,T).
-% robot cannot pickup and place an object in the same turn
+% robot cannot pickup and place any object in the same turn
 :- pickup(R,OB,T), place(R,OB,T).
-% robot cannot place an object and move in the same turn
+% robot cannot place any object and move in the same turn
 :- place(R,OB,T),  move(R,D,T).
-% robot cannot place an objec tif it does not have the pobect
+% robot cannot place any object if it does not have the object
 :- place(R,OB,T), has(R,OB,false,T).
-% robot cannot pickup an object if it already hjas the object (waste of an action)
+% robot cannot pickup any object if it already has the object (waste of an action)
 :- pickup(R,OBa,T), has(R,OBa,true,T).
+% robot cannot pickup any object and another object at the same time
+:- pickup(R,OBa,T), pickup(R,OBb,T), OBa!=OBb.
+% robot cannot place any object and another object at the same time
+:- place(R,OBa,T), place(R,OBb,T), OBa!=OBb.
 
 
 %%%%%%%%%%%%%%%%
@@ -114,9 +126,9 @@ on(OB1,X,Y,T+1) :- has(R,OB1,true,T), ron(R,X,Y,T+1).
 %:- not 1{move(R,D,T)}1.
 
 % if robot has not moved in ANY of the 4 directions, he is in the same place
-ron(R,X,Y,T+1) :- not move(R,1,T), not move(R,2,T), not move(R,3,T), not move(R,4,T), ron(R,X,Y,T).
+ron(R,X,Y,T+1) :- not move(R,left,T), not move(R,up,T), not move(R,right,T), not move(R,down,T), ron(R,X,Y,T).
 % if an object isheld at time T, it will still be held at time T+1
-on(OB,X,Y,T+1) :- isheld(OB,false,T), on(OB,X,Y,T).
+on(OBa,X,Y,T+1) :- isheld(OBa,false,T), on(OBa,X,Y,T).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -132,70 +144,71 @@ on(OB,X,Y,T+1) :- isheld(OB,false,T), on(OB,X,Y,T).
 % planning
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% walls: 
-:- ron(R,1,1,T), move(R,2,T).
-:- ron(R,2,1,T), move(R,2,T).
-:- ron(R,4,1,T), move(R,2,T).
-:- ron(R,4,1,T), move(R,3,T).
-:- ron(R,5,1,T), move(R,1,T).
-:- ron(R,5,1,T), move(R,2,T).
+:- ron(R,1,1,T), move(R,up,T).
+:- ron(R,2,1,T), move(R,up,T).
+:- ron(R,4,1,T), move(R,up,T).
+:- ron(R,4,1,T), move(R,right,T).
+:- ron(R,5,1,T), move(R,left,T).
+:- ron(R,5,1,T), move(R,up,T).
 
-:- ron(R,1,2,T), move(R,4,T).
-:- ron(R,2,2,T), move(R,3,T).
-:- ron(R,2,2,T), move(R,4,T).
-:- ron(R,3,2,T), move(R,1,T).
-:- ron(R,4,2,T), move(R,2,T).
-:- ron(R,4,2,T), move(R,4,T).
-:- ron(R,5,2,T), move(R,2,T).
-:- ron(R,5,2,T), move(R,4,T).
+:- ron(R,1,2,T), move(R,down,T).
+:- ron(R,2,2,T), move(R,right,T).
+:- ron(R,2,2,T), move(R,down,T).
+:- ron(R,3,2,T), move(R,left,T).
+:- ron(R,4,2,T), move(R,up,T).
+:- ron(R,4,2,T), move(R,down,T).
+:- ron(R,5,2,T), move(R,up,T).
+:- ron(R,5,2,T), move(R,down,T).
 
-:- ron(R,1,3,T), move(R,2,T).
-:- ron(R,2,3,T), move(R,2,T).
-:- ron(R,4,3,T), move(R,3,T).
-:- ron(R,4,3,T), move(R,4,T).
-:- ron(R,5,3,T), move(R,1,T).
-:- ron(R,5,3,T), move(R,2,T).
-:- ron(R,5,3,T), move(R,4,T).
-:- ron(R,6,3,T), move(R,2,T).
+:- ron(R,1,3,T), move(R,up,T).
+:- ron(R,2,3,T), move(R,up,T).
+:- ron(R,4,3,T), move(R,right,T).
+:- ron(R,4,3,T), move(R,down,T).
+:- ron(R,5,3,T), move(R,left,T).
+:- ron(R,5,3,T), move(R,up,T).
+:- ron(R,5,3,T), move(R,down,T).
+:- ron(R,6,3,T), move(R,up,T).
 
-:- ron(R,1,4,T), move(R,2,T).
-:- ron(R,1,4,T), move(R,4,T).
-:- ron(R,2,4,T), move(R,2,T).
-:- ron(R,2,4,T), move(R,4,T).
-:- ron(R,3,4,T), move(R,3,T).
-:- ron(R,4,4,T), move(R,1,T).
-:- ron(R,4,4,T), move(R,2,T).
-:- ron(R,5,4,T), move(R,2,T).
-:- ron(R,5,4,T), move(R,4,T).
-:- ron(R,6,4,T), move(R,4,T).
+:- ron(R,1,4,T), move(R,up,T).
+:- ron(R,1,4,T), move(R,down,T).
+:- ron(R,2,4,T), move(R,up,T).
+:- ron(R,2,4,T), move(R,down,T).
+:- ron(R,3,4,T), move(R,right,T).
+:- ron(R,4,4,T), move(R,left,T).
+:- ron(R,4,4,T), move(R,up,T).
+:- ron(R,5,4,T), move(R,up,T).
+:- ron(R,5,4,T), move(R,down,T).
+:- ron(R,6,4,T), move(R,down,T).
 
-:- ron(R,1,5,T), move(R,2,T).
-:- ron(R,1,5,T), move(R,4,T).
-:- ron(R,2,5,T), move(R,2,T).
-:- ron(R,2,5,T), move(R,4,T).
-:- ron(R,3,5,T), move(R,3,T).
-:- ron(R,4,5,T), move(R,1,T).
-:- ron(R,4,5,T), move(R,4,T).
-:- ron(R,5,5,T), move(R,2,T).
-:- ron(R,5,5,T), move(R,4,T).
-:- ron(R,6,5,T), move(R,2,T).
+:- ron(R,1,5,T), move(R,up,T).
+:- ron(R,1,5,T), move(R,down,T).
+:- ron(R,2,5,T), move(R,up,T).
+:- ron(R,2,5,T), move(R,down,T).
+:- ron(R,3,5,T), move(R,right,T).
+:- ron(R,4,5,T), move(R,left,T).
+:- ron(R,4,5,T), move(R,down,T).
+:- ron(R,5,5,T), move(R,up,T).
+:- ron(R,5,5,T), move(R,down,T).
+:- ron(R,6,5,T), move(R,up,T).
 
-:- ron(R,1,6,T), move(R,4,T).
-:- ron(R,2,6,T), move(R,4,T).
-:- ron(R,3,6,T), move(R,3,T).
-:- ron(R,4,6,T), move(R,1,T).
-:- ron(R,5,6,T), move(R,4,T).
-:- ron(R,6,6,T), move(R,4,T).
+:- ron(R,1,6,T), move(R,down,T).
+:- ron(R,2,6,T), move(R,down,T).
+:- ron(R,3,6,T), move(R,right,T).
+:- ron(R,4,6,T), move(R,left,T).
+:- ron(R,5,6,T), move(R,down,T).
+:- ron(R,6,6,T), move(R,down,T).
 
 % initial conditions
 :- not ron(r1,1,6,0).
 :- not on(a,1,2,0).
-:- not on(b,1,2,0).
+:- not on(b,2,6,0).
 :- has(R,OB,true,0).
 :- isheld(OB,true,0).
 
 % final conditions
 :- not on(a,6,6,maxstep).
-:- not on(b,1,1,maxstep).
+:- not on(b,3,6,maxstep).
+:- has(R,OB,true,0).
 :- isheld(OB,true,maxstep).
 
 % hide variables that are constants
