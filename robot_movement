@@ -123,68 +123,68 @@ on(OB,X,Y,T+1) :- isheld(OB,false,T), on(OB,X,Y,T).
 % planning
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% walls: 
-%:- ron(R,1,1,T), move(R,2,T).
-%:- ron(R,2,1,T), move(R,2,T).
-%:- ron(R,4,1,T), move(R,2,T).
-%:- ron(R,4,1,T), move(R,3,T).
-%:- ron(R,5,1,T), move(R,1,T).
-%:- ron(R,5,1,T), move(R,2,T).
-%
-%:- ron(R,1,2,T), move(R,4,T).
-%:- ron(R,2,2,T), move(R,3,T).
-%:- ron(R,2,2,T), move(R,4,T).
-%:- ron(R,3,2,T), move(R,1,T).
-%:- ron(R,4,2,T), move(R,2,T).
-%:- ron(R,4,2,T), move(R,4,T).
-%:- ron(R,5,2,T), move(R,2,T).
-%:- ron(R,5,2,T), move(R,4,T).
-%
-%:- ron(R,1,3,T), move(R,2,T).
-%:- ron(R,2,3,T), move(R,2,T).
-%:- ron(R,4,3,T), move(R,3,T).
-%:- ron(R,4,3,T), move(R,4,T).
-%:- ron(R,5,3,T), move(R,1,T).
-%:- ron(R,5,3,T), move(R,2,T).
-%:- ron(R,5,3,T), move(R,4,T).
-%:- ron(R,6,3,T), move(R,2,T).
-%
-%:- ron(R,1,4,T), move(R,2,T).
-%:- ron(R,1,4,T), move(R,4,T).
-%:- ron(R,2,4,T), move(R,2,T).
-%:- ron(R,2,4,T), move(R,4,T).
-%:- ron(R,3,4,T), move(R,3,T).
-%:- ron(R,4,4,T), move(R,1,T).
-%:- ron(R,4,4,T), move(R,2,T).
-%:- ron(R,5,4,T), move(R,2,T).
-%:- ron(R,5,4,T), move(R,4,T).
-%:- ron(R,6,4,T), move(R,4,T).
-%
-%:- ron(R,1,5,T), move(R,2,T).
-%:- ron(R,1,5,T), move(R,4,T).
-%:- ron(R,2,5,T), move(R,2,T).
-%:- ron(R,2,5,T), move(R,4,T).
-%:- ron(R,3,5,T), move(R,3,T).
-%:- ron(R,4,5,T), move(R,1,T).
-%:- ron(R,4,5,T), move(R,4,T).
-%:- ron(R,5,5,T), move(R,2,T).
-%:- ron(R,5,5,T), move(R,4,T).
-%:- ron(R,6,5,T), move(R,2,T).
-%
-%:- ron(R,1,6,T), move(R,4,T).
-%:- ron(R,2,6,T), move(R,4,T).
-%:- ron(R,3,6,T), move(R,3,T).
-%:- ron(R,4,6,T), move(R,1,T).
-%:- ron(R,5,6,T), move(R,4,T).
-%:- ron(R,6,6,T), move(R,4,T).
+:- ron(R,1,1,T), move(R,2,T).
+:- ron(R,2,1,T), move(R,2,T).
+:- ron(R,4,1,T), move(R,2,T).
+:- ron(R,4,1,T), move(R,3,T).
+:- ron(R,5,1,T), move(R,1,T).
+:- ron(R,5,1,T), move(R,2,T).
+
+:- ron(R,1,2,T), move(R,4,T).
+:- ron(R,2,2,T), move(R,3,T).
+:- ron(R,2,2,T), move(R,4,T).
+:- ron(R,3,2,T), move(R,1,T).
+:- ron(R,4,2,T), move(R,2,T).
+:- ron(R,4,2,T), move(R,4,T).
+:- ron(R,5,2,T), move(R,2,T).
+:- ron(R,5,2,T), move(R,4,T).
+
+:- ron(R,1,3,T), move(R,2,T).
+:- ron(R,2,3,T), move(R,2,T).
+:- ron(R,4,3,T), move(R,3,T).
+:- ron(R,4,3,T), move(R,4,T).
+:- ron(R,5,3,T), move(R,1,T).
+:- ron(R,5,3,T), move(R,2,T).
+:- ron(R,5,3,T), move(R,4,T).
+:- ron(R,6,3,T), move(R,2,T).
+
+:- ron(R,1,4,T), move(R,2,T).
+:- ron(R,1,4,T), move(R,4,T).
+:- ron(R,2,4,T), move(R,2,T).
+:- ron(R,2,4,T), move(R,4,T).
+:- ron(R,3,4,T), move(R,3,T).
+:- ron(R,4,4,T), move(R,1,T).
+:- ron(R,4,4,T), move(R,2,T).
+:- ron(R,5,4,T), move(R,2,T).
+:- ron(R,5,4,T), move(R,4,T).
+:- ron(R,6,4,T), move(R,4,T).
+
+:- ron(R,1,5,T), move(R,2,T).
+:- ron(R,1,5,T), move(R,4,T).
+:- ron(R,2,5,T), move(R,2,T).
+:- ron(R,2,5,T), move(R,4,T).
+:- ron(R,3,5,T), move(R,3,T).
+:- ron(R,4,5,T), move(R,1,T).
+:- ron(R,4,5,T), move(R,4,T).
+:- ron(R,5,5,T), move(R,2,T).
+:- ron(R,5,5,T), move(R,4,T).
+:- ron(R,6,5,T), move(R,2,T).
+
+:- ron(R,1,6,T), move(R,4,T).
+:- ron(R,2,6,T), move(R,4,T).
+:- ron(R,3,6,T), move(R,3,T).
+:- ron(R,4,6,T), move(R,1,T).
+:- ron(R,5,6,T), move(R,4,T).
+:- ron(R,6,6,T), move(R,4,T).
 
 % initial conditions
 :- not ron(r1,4,1,0).
-:- not on(a,3,1,0).
+:- not on(a,3,5,0).
 :- has(R,OB,true,0).
 :- isheld(OB,true,0).
 
 % final conditions
-:- not on(a,2,1,maxstep).
+:- not on(a,2,2,maxstep).
 :- isheld(OB,true,maxstep).
 
 % hide variables that are constants
