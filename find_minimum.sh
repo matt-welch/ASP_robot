@@ -38,6 +38,5 @@ do
 done
 echo
 echo "Minimum number of steps = ${I}:"
-RESULT=$(time ${COMMAND} )
-echo $RESULT
+time ${COMMAND} | grep -P "\b(left|up|right|down|pickup|place)\b" --color=auto
 echo
