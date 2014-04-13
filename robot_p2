@@ -1,4 +1,15 @@
-% file 'robot'
+%/*******************************************************************************
+% * FILENAME:	robobt_p2
+% * DESCRIPTION:Encode an ASP solver in clingo to find the path of a single robot
+% * R that needs to move multiple objects to goal locations. The robot may hold 
+% * multiple objects simultaneously. 
+% * AUTHOR:	James Matthew Welch [JMW]
+% * SCHOOL: 	Arizona State University
+% * CLASS:	CSE471/598: Introduction to Artificial Intelligence
+% * INSTRUCTOR:	Joohyung Lee
+% * SECTION:	18115 
+% * TERM:	Spring 2014
+% ******************************************************************************/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % object declaration
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%

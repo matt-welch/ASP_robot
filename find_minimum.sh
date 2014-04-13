@@ -1,7 +1,15 @@
 #!/bin/bash
-# file: fins_minimum.sh
-# beginning at maxstep=1, program finds the minimum number of steps
-# required for a provided program to complete
+#/*******************************************************************************
+# * FILENAME:	find_minimum.sh
+# * DESCRIPTION: beginning at maxstep=1, program finds the minimum number of steps
+# * required for a provided program to complete
+# * AUTHOR:	James Matthew Welch [JMW]
+# * SCHOOL: 	Arizona State University
+# * CLASS:	CSE471/598: Introduction to Artificial Intelligence
+# * INSTRUCTOR:	Joohyung Lee
+# * SECTION:	18115 
+# * TERM:	Spring 2014
+# ******************************************************************************/
 #
 # first argument to the function is the program to run through clingo
 # it is assumed that the program shoudl be run with the only argument
