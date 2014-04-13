@@ -22,7 +22,7 @@ boolean(true;false).
 #domain boolean(B).
 
 % variables describing objects
-object(a;b).
+object(a;b;c).
 #domain object(OB).
 #domain object(OB1).
 
@@ -51,11 +51,13 @@ ron(R,  X,Y-1,T+1) :- move(R,down,T), ron(R,X,Y,T).
 
 % functions to control objects
 % this rule  may need to be modified to allow for each object to be held
-1{has(R,OBa,Bool,ST):  object(OBa): boolean(Bool)}1 :- robot(R), step(ST).
-0{pickup(R,OBa,T):     object(OBa)}1 :- robot(R), astep(T).
-0{place(R,OBa,T):      object(OBa)}1 :- robot(R), astep(T).
-1{on(OBa,X1,Y1,ST):    object(OBa): axis(X1): axis(Y1)}1 :- step(ST).
-1{isheld(OBa,Bool,ST): object(OBa): boolean(Bool)}1 :- step(ST).
+% rule differs from robot_p1 in that it generates possesion for all objects
+1{has(R,OB,Bool,ST): boolean(Bool)}1 :- object(OBa), robot(R), step(ST).
+0{pickup(R,OBa,T)  : object(OBa)}1   :- robot(R), astep(T).
+0{place(R,OBa,T)   : object(OBa)}1   :- robot(R), astep(T).
+% rule differs from robot_p1 in that it generates positions for all objects
+1{on(OB,X1,Y1,ST):    axis(X1): axis(Y1)}1 :- object(OB), step(ST).
+1{isheld(OB,Bool,ST): boolean(Bool)}1      :- object(OB), step(ST).
 
 % if an object is on X,Y and not held at T, it will still be there at T+1
 % use local OBa to indicate a particular object for each of these effects rather
@@ -101,7 +103,7 @@ on(OBa,X,Y,T+1) :- has(R,OBa,true,T), ron(R,X,Y,T+1).
 % robot cannot pickup any object and move in the same turn
 :- pickup(R,OB,T), move(R,D,T).
 % robot cannot pickup and place any object in the same turn
-:- pickup(R,OB,T), place(R,OB,T).
+:- pickup(R,OBa,T), place(R,OBb,T), OBa!=OBb.
 % robot cannot place any object and move in the same turn
 :- place(R,OB,T),  move(R,D,T).
 % robot cannot place any object if it does not have the object
@@ -201,19 +203,25 @@ on(OBa,X,Y,T+1) :- isheld(OBa,false,T), on(OBa,X,Y,T).
 % initial conditions
 :- not ron(r1,1,6,0).
 :- not on(a,1,2,0).
-:- not on(b,2,6,0).
+:- not on(b,1,1,0).
+:- not on(c,5,1,0).
 :- has(R,OB,true,0).
 :- isheld(OB,true,0).
 
 % final conditions
 :- not on(a,6,6,maxstep).
-:- not on(b,3,6,maxstep).
+:- not on(b,5,3,maxstep).
+:- not on(c,1,4,maxstep).
 :- has(R,OB,true,0).
 :- isheld(OB,true,maxstep).
 
 % hide variables that are constants
 #hide.
 % show only the variables that are relevant to the path
+%#show on/4.
+%#show ron/4.
 #show move/3.
 #show pickup/3.
 #show place/3.
+%#show isheld/3.
+%#show has/4.

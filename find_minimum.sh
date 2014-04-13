@@ -12,7 +12,6 @@
 #	starting at maxstep=1
 #	run robot_movement as the program if no argument is specified
 
-I=0
 #GRIPPERS=2
 #COMMAND="./clingo bw_p4 -c maxstep=${I} -c grippers=${GRIPPERS} 1"
 #COMMAND="./clingo bw_p3 -c maxstep=${I} -c grippers=${GRIPPERS} 1"
@@ -24,6 +23,15 @@ else
 	PROGRAM=$1
 fi
 echo "Program: $PROGRAM"
+FILENAME_OUT=${PROGRAM}_out
+echo "Saving output to <${FILENAME_OUT}>"
+if [ -z $2 ]
+then
+	I=54
+else
+	I=$2
+fi
+echo "Beginning at $I maximum steps"
 RESULT="" #$(${COMMAND} | grep "^SATISFIABLE" --color=auto)
 #echo $RESULT
 while [ -z ${RESULT} ]
@@ -38,5 +46,6 @@ do
 done
 echo
 echo "Minimum number of steps = ${I}:"
-time ${COMMAND} | grep -P "\b(left|up|right|down|pickup|place)\b" --color=auto
+time ${COMMAND} > $FILENAME_OUT 
+grep -P "\b(left|up|right|down|pickup|place)\b" $FILENAME_OUT --color=auto
 echo
