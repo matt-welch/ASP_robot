@@ -9,3 +9,7 @@ clingo
 *.pdf
 */
 *.txt
+*out
+*bad
+states
+transitions

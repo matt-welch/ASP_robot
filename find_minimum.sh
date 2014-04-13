@@ -27,11 +27,11 @@ FILENAME_OUT=${PROGRAM}_out
 echo "Saving output to <${FILENAME_OUT}>"
 if [ -z $2 ]
 then
-	I=54
+	I=53
 else
-	I=$2
+	I=$(( $2 - 1 ))
 fi
-echo "Beginning at $I maximum steps"
+echo "Beginning at $(( I + 1 )) steps"
 RESULT="" #$(${COMMAND} | grep "^SATISFIABLE" --color=auto)
 #echo $RESULT
 while [ -z ${RESULT} ]
