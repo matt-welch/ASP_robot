@@ -17,7 +17,7 @@ step(0..maxstep).
 astep(0..maxstep-1).
 axis(1..6).
 direction(left;up;right;down).
-robot(r1).
+robot(r1;r2).
 boolean(true;false).
 
 #domain step(ST).
@@ -33,7 +33,7 @@ boolean(true;false).
 #domain boolean(B).
 
 % variables describing objects
-object(a;b;c).
+object(a;b).
 #domain object(OB).
 #domain object(OB1).
 
@@ -98,18 +98,22 @@ on(OBa,X,Y,T+1) :- isheld(OBa,false,T), on(OBa,X,Y,T).
 has(R1,OBa,true, T+1) :- has(R1,OBa,true,T),   not place(R1,OBa,T).
 has(R1,OBa,false,T+1) :- has(R1,OBa,false,T),  not pickup(R1,OBa,T).
 
-% TODO: I think these need to be global R rather than local-R1 because they are only constant if all robots do not modify them, but still don't understand why gives "illegal variable" error
-% if a particular object is held and no robot places it, it will remain held
-isheld(OBa,true, T+1) :- isheld(OBa,true,T),  not place(R,OBa,T).
-% if a particular object is held and no robot pickup object, it will remain unheld
-isheld(OBa,false,T+1) :- isheld(OBa,false,T), not pickup(R,OBa,T).
-% TODO: need to add extra condition for two robots holding the object
+%% TODO: I think these need to be global R rather than local-R1 because they are only constant if all robots do not modify them, but still don't understand why gives "unsafe variable" error
+%% if a particular object is held and no robot places it, it will remain held
+%isheld(OBa,true, T+1) :- isheld(OBa,true,T),  not place(R,OBa,T).
+isheld(a,false, T+1) :- isheld(a,false,T),  not pickup(r1,a,T).
+isheld(b,false, T+1) :- isheld(b,false,T),  not pickup(r2,b,T).
+isheld(a,true, T+1) :- isheld(a,true,T),  not place(r1,a,T).
+isheld(b,true, T+1) :- isheld(b,true,T),  not place(r2,b,T).
+%% if a particular object is held and no robot pickup object, it will remain unheld
+%isheld(OBa,false,T+1) :- isheld(OBa,false,T), not pickup(R,OBa,T).
+%% TODO: need to add extra condition for two robots holding the object
 
 %%%%%%%%%%%%%%%%
 %% constraints
 %%%%%%%%%%%%%%%%
 
-% limit robot capacity: if a robot has an object, it may not pickup another object
+%% limit robot capacity: if a robot has an object, it may not pickup another object
 :- has(R1,OBa,true,T), pickup(R1,OBb,T), OBa!=OBb.
 :- has(R1,OBa,true,T), place(R1,OBb,T), OBa!=OBb.
 
@@ -133,6 +137,8 @@ isheld(OBa,false,T+1) :- isheld(OBa,false,T), not pickup(R,OBa,T).
 
 % an object cannot be picked up if it is already held  TODO different for HEAVY
 :- pickup(R,OBa,T), isheld(OBa,true,T).
+% two robots may not have an object at the same time TODO: this needs to be amended (new rule for HEAVY) for the HEAVY case
+:- has(R1,OBa,true,T), has(R2,OBa,true,T), R1!=R2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % domain independent axioms
@@ -205,15 +211,24 @@ isheld(OBa,false,T+1) :- isheld(OBa,false,T), not pickup(R,OBa,T).
 % initial conditions for debugging (short path)
 :- not ron(r1,1,6,0).
 :- not on(a,2,6,0).
-:- not on(b,3,5,0).
-:- not on(c,3,3,0).
+:- not ron(r2,1,1,0).
+:- not on(b,2,1,0).
 :- has(R,OB,true,0).
 :- isheld(OB,true,0).
 
+% actions
+%move(r1,right,0).
+%move(r2,right,0).
+%pickup(r1,a,1).
+%pickup(r2,b,1).
+%move(r1,right,2).
+%move(r2,right,2).
+%place(r1,a,3).
+%place(r2,b,3).
+
 % final conditions
 :- not on(a,3,6,maxstep).
-:- not on(b,3,4,maxstep).
-:- not on(c,3,2,maxstep).
+:- not on(b,3,1,maxstep).
 :- has(R,OB,true,0).
 :- isheld(OB,true,maxstep).
 %%%%%
@@ -236,10 +251,10 @@ isheld(OBa,false,T+1) :- isheld(OBa,false,T), not pickup(R,OBa,T).
 % hide variables that are constants
 #hide.
 % show only the variables that are relevant to the path
-%#show on/4.
-%#show ron/4.
+#show on/4.
+#show ron/4.
 #show move/3.
 #show pickup/3.
 #show place/3.
-%#show isheld/3.
-%#show has/4.
+#show isheld/3.
+#show has/4.

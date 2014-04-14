@@ -1,0 +1,16 @@
+#!/bin/bash
+if [ -z $1 ]
+then
+	N=12
+else
+	N=$1
+fi
+
+FILE=robot_p4
+OUTPUT=${FILE}_out
+echo > $OUTPUT
+cat $OUTPUT
+
+./clingo ${FILE} -c maxstep=${N} > $OUTPUT
+
+cat $OUTPUT | tr ' ' '\n' | sort | grep -P "\b(left|up|right|down|pickup|place|isheld|has|ron|on)\b" --color=auto
