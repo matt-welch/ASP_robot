@@ -42,18 +42,20 @@ object(a;b).
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % a function mapping from robot and position to time
 % for every robot,R, and time step ST, chose exactly one x and y position
-1{ron(R,X1,Y1,ST) : axis(X1) : axis(Y1)}1 :- robot(R), step(ST).
+%1{ron(R,X1,Y1,ST) : axis(X1) : axis(Y1)}1 :- robot(R), step(ST).
 
 % a function describing robot movement
 % for every robot,R, and time step ST, chose no more than one movement
 0{move(R,D1,T): direction(D1)}1 :- robot(R), astep(T).
 
 % functions to control objects
-1{has(R,OB,Bool,ST): boolean(Bool)}1 :- object(OBa), robot(R), step(ST).
+% the following rule allows a robot to arbitrarily hold an object at any time
+%1{has(R,OB,B,ST): boolean(B)}1 :- object(OBa), robot(R), step(ST).
 0{pickup(R,OBa,T)  : object(OBa)}1   :- robot(R), astep(T).
 0{place(R,OBa,T)   : object(OBa)}1   :- robot(R), astep(T).
-1{on(OB,X1,Y1,ST):    axis(X1): axis(Y1)}1 :- object(OB), step(ST).
-1{isheld(OB,Bool,ST): boolean(Bool)}1      :- object(OB), step(ST).
+%1{on(OB,X1,Y1,ST):    axis(X1): axis(Y1)}1 :- object(OB), step(ST).
+% the following rule allows the object to be arbitrarily held at any moment in time
+%1{isheld(OB,B,ST): boolean(B)}1      :- object(OB), step(ST).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % effects and preconditions of actions
@@ -87,24 +89,28 @@ isheld(OBa,true, T+1) :- isheld(OBa1,false,T), pickup(R1,OBa,T).
 isheld(OBa,false,T+1) :- isheld(OBa1,true,T),  place(R1,OBa,T).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-% intertial constraints
+% inertial constraints
 %%%%%%%%%%%%%%%%%%%%%%%%
 % if robot has not moved in ANY of the 4 directions, it is in the same place
-ron(R1,X,Y,T+1) :- not move(R1,left,T), not move(R1,up,T), not move(R1,right,T), not move(R1,down,T), ron(R1,X,Y,T).
+%ron(R1,X,Y,T+1) :- not move(R1,left,T), not move(R1,up,T), not move(R1,right,T), not move(R1,down,T), ron(R1,X,Y,T).
+{ron(R,X,Y,T+1)} :- ron(R1,X,Y,T).
 % if an object isheld at time T, it will still be held at time T+1
-on(OBa,X,Y,T+1) :- isheld(OBa,false,T), on(OBa,X,Y,T).
+%on(OBa,X,Y,T+1) :- isheld(OBa,false,T), on(OBa,X,Y,T).
+{on(OBa,X,Y,T+1)} :- on(OBa,X,Y,T).
 
 % robot still has/doesn't have objects unless it places/picks them up
-has(R1,OBa,true, T+1) :- has(R1,OBa,true,T),   not place(R1,OBa,T).
-has(R1,OBa,false,T+1) :- has(R1,OBa,false,T),  not pickup(R1,OBa,T).
+%has(R1,OBa,true, T+1) :- has(R1,OBa,true,T),   not place(R1,OBa,T).
+{has(R,OB,B, T+1)} :- has(R,OB,B,T).
+%has(R1,OBa,false,T+1) :- has(R1,OBa,false,T),  not pickup(R1,OBa,T).
 
-%% TODO: I think these need to be global R rather than local-R1 because they are only constant if all robots do not modify them, but still don't understand why gives "unsafe variable" error
-%% if a particular object is held and no robot places it, it will remain held
+% TODO: I think these need to be global R rather than local-R1 because they are only constant if all robots do not modify them, but still don't understand why gives "unsafe variable" error
+% if a particular object is held and no robot places it, it will remain held
 %isheld(OBa,true, T+1) :- isheld(OBa,true,T),  not place(R,OBa,T).
-isheld(a,false, T+1) :- isheld(a,false,T),  not pickup(r1,a,T).
-isheld(b,false, T+1) :- isheld(b,false,T),  not pickup(r2,b,T).
-isheld(a,true, T+1) :- isheld(a,true,T),  not place(r1,a,T).
-isheld(b,true, T+1) :- isheld(b,true,T),  not place(r2,b,T).
+%isheld(a,false, T+1) :- isheld(a,false,T),  not pickup(R,a,T).
+%isheld(b,false, T+1) :- isheld(b,false,T),  not pickup(r2,b,T).
+{isheld(OB,B,T+1)} :- isheld(OB,B,T).
+%isheld(a,true, T+1) :- isheld(a,true,T),  not place(r1,a,T).
+%isheld(b,true, T+1) :- isheld(b,true,T),  not place(r2,b,T).
 %% if a particular object is held and no robot pickup object, it will remain unheld
 %isheld(OBa,false,T+1) :- isheld(OBa,false,T), not pickup(R,OBa,T).
 %% TODO: need to add extra condition for two robots holding the object
@@ -113,7 +119,7 @@ isheld(b,true, T+1) :- isheld(b,true,T),  not place(r2,b,T).
 %% constraints
 %%%%%%%%%%%%%%%%
 
-%% limit robot capacity: if a robot has an object, it may not pickup another object
+% limit robot capacity: if a robot has an object, it may not pickup another object
 :- has(R1,OBa,true,T), pickup(R1,OBb,T), OBa!=OBb.
 :- has(R1,OBa,true,T), place(R1,OBb,T), OBa!=OBb.
 
@@ -147,6 +153,11 @@ isheld(b,true, T+1) :- isheld(b,true,T),  not place(r2,b,T).
 {move(R,D,T)}.
 {place(R,OB,T)}.
 {pickup(R,OB,T)}.
+% fluents are initially exogenous
+{on(OB,X,Y,0)}.
+{ron(R,X,Y,0)}.
+{has(R,OB,B,0)}.
+{isheld(OB,B,0)}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -217,10 +228,10 @@ isheld(b,true, T+1) :- isheld(b,true,T),  not place(r2,b,T).
 :- isheld(OB,true,0).
 
 % actions
-%move(r1,right,0).
-%move(r2,right,0).
-%pickup(r1,a,1).
-%pickup(r2,b,1).
+move(r1,right,0).
+move(r2,right,0).
+pickup(r1,a,1).
+pickup(r2,b,1).
 %move(r1,right,2).
 %move(r2,right,2).
 %place(r1,a,3).
@@ -251,10 +262,10 @@ isheld(b,true, T+1) :- isheld(b,true,T),  not place(r2,b,T).
 % hide variables that are constants
 #hide.
 % show only the variables that are relevant to the path
-#show on/4.
-#show ron/4.
+%#show on/4.
+%#show ron/4.
 #show move/3.
 #show pickup/3.
 #show place/3.
-#show isheld/3.
-#show has/4.
+%#show isheld/3.
+%#show has/4.
