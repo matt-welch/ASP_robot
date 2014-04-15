@@ -82,11 +82,13 @@ on(OBa,X,Y,T+1) :- has(R,OBa,true,T), ron(R,X,Y,T+1).
 :- pickup(R1,OBa,T), ron(R1,X,Y,T), on(OBa,XX,YY,T), YY!=Y.
 
 % effects of pickup and place on robot
-has(R1,OBa,true, T+1) :- has(R1,OBa,false,T),  pickup(R1,OBa,T).
-has(R1,OBa,false,T+1) :- has(R1,OBa,true,T),   place(R1,OBa,T).
+has(R1,OBa,true, T+1) :- pickup(R1,OBa,T).
+%on(R,X,Y,T+1) :- pickup(R,OB,T), on(R,X,Y,T).
+has(R1,OBa,false,T+1) :- place(R1,OBa,T).
+%on(R,X,Y,T+1) :- place(R,OB,T), on(R,X,Y,T).
 % effects of pickup and place on object
-isheld(OBa,true, T+1) :- isheld(OBa1,false,T), pickup(R1,OBa,T).
-isheld(OBa,false,T+1) :- isheld(OBa1,true,T),  place(R1,OBa,T).
+isheld(OBa,true, T+1) :- pickup(R1,OBa,T).
+isheld(OBa,false,T+1) :- place(R1,OBa,T).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % inertial constraints
@@ -94,9 +96,8 @@ isheld(OBa,false,T+1) :- isheld(OBa1,true,T),  place(R1,OBa,T).
 % if robot has not moved in ANY of the 4 directions, it is in the same place
 %ron(R1,X,Y,T+1) :- not move(R1,left,T), not move(R1,up,T), not move(R1,right,T), not move(R1,down,T), ron(R1,X,Y,T).
 {ron(R,X,Y,T+1)} :- ron(R1,X,Y,T).
-% if an object isheld at time T, it will still be held at time T+1
-%on(OBa,X,Y,T+1) :- isheld(OBa,false,T), on(OBa,X,Y,T).
-{on(OBa,X,Y,T+1)} :- on(OBa,X,Y,T).
+on(OBa,X,Y,T+1) :- isheld(OBa,false,T), on(OBa,X,Y,T).
+%{on(OBa,X,Y,T+1)} :- on(OBa,X,Y,T).
 
 % robot still has/doesn't have objects unless it places/picks them up
 %has(R1,OBa,true, T+1) :- has(R1,OBa,true,T),   not place(R1,OBa,T).
@@ -131,20 +132,33 @@ isheld(OBa,false,T+1) :- isheld(OBa1,true,T),  place(R1,OBa,T).
 :- pickup(R1,OBa,T), place(R1,OBb,T), OBa!=OBb.
 % robot cannot place any object and move in the same turn
 :- place(R1,OB,T),  move(R1,D,T).
+%% robot should do SOMEthing in each turn
+%:- not move(R,D,T), not place(R,OB,T), not pickup(R,OB,T).
 
 % robot cannot place any object if it does not have the object
-:- place(R1,OB,T), has(R1,OB,false,T).
+%:- place(R,OB,T), has(R,OB,false,T).
+%:- place(R,OB,T), not has(R,OB,true,T).
+%:- place(R,OB,T), isheld(OB,false,T).
+%:- place(R,OB,T), not isheld(OB,true,T).
 % robot cannot pickup any object if it already has the object (waste of an action)
 :- pickup(R1,OBa,T), has(R1,OBa,true,T).
 % robot cannot pickup any object and another object at the same time
 :- pickup(R1,OBa,T), pickup(R1,OBb,T), OBa!=OBb.
 % robot cannot place any object and another object at the same time
 :- place(R1,OBa,T), place(R1,OBb,T), OBa!=OBb.
+:- place(R,OB,T), not isheld(OB,true,T).
+
 
 % an object cannot be picked up if it is already held  TODO different for HEAVY
-:- pickup(R,OBa,T), isheld(OBa,true,T).
+%:- pickup(R,OBa,T), isheld(OBa,true,T).
 % two robots may not have an object at the same time TODO: this needs to be amended (new rule for HEAVY) for the HEAVY case
 :- has(R1,OBa,true,T), has(R2,OBa,true,T), R1!=R2.
+
+% uniqueness constraints: must have exactly one value for each
+:- not 1{has(R,OB,BB,T): boolean(BB)}1.
+:- not 1{isheld(OB,BB,T): boolean(BB)}1.
+:- not 1{ron(R,X1,Y1,T): axis(X1): axis(Y1)}1.
+:- not 1{on(OB,X1,Y1,T): axis(X1): axis(Y1)}1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % domain independent axioms
@@ -153,7 +167,7 @@ isheld(OBa,false,T+1) :- isheld(OBa1,true,T),  place(R1,OBa,T).
 {move(R,D,T)}.
 {place(R,OB,T)}.
 {pickup(R,OB,T)}.
-% fluents are initially exogenous
+% fluents are initially exogenous but decided as the result of actions thereafter
 {on(OB,X,Y,0)}.
 {ron(R,X,Y,0)}.
 {has(R,OB,B,0)}.
@@ -224,14 +238,14 @@ isheld(OBa,false,T+1) :- isheld(OBa1,true,T),  place(R1,OBa,T).
 :- not on(a,2,6,0).
 :- not ron(r2,1,1,0).
 :- not on(b,2,1,0).
-:- has(R,OB,true,0).
-:- isheld(OB,true,0).
+:- not has(R,OB,false,0).
+:- not isheld(OB,false,0).
 
 % actions
-move(r1,right,0).
-move(r2,right,0).
-pickup(r1,a,1).
-pickup(r2,b,1).
+%move(r1,right,0).
+%move(r2,right,0).
+%pickup(r1,a,1).
+%pickup(r2,b,1).
 %move(r1,right,2).
 %move(r2,right,2).
 %place(r1,a,3).
@@ -262,10 +276,10 @@ pickup(r2,b,1).
 % hide variables that are constants
 #hide.
 % show only the variables that are relevant to the path
-%#show on/4.
-%#show ron/4.
+#show on/4.
+#show ron/4.
 #show move/3.
 #show pickup/3.
 #show place/3.
-%#show isheld/3.
-%#show has/4.
+#show isheld/3.
+#show has/4.
