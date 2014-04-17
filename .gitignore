@@ -1,5 +1,6 @@
 # temporary files
 *.swp
+*~
 
 # clingo itself
 clingo
@@ -10,6 +11,7 @@ clingo
 */
 *.txt
 *out
+*_out*
 *bad
 states
 transitions
