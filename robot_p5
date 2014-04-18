@@ -1,15 +1,15 @@
 %/*******************************************************************************
-% * FILENAME:	robobt_p5
+% * FILENAME:   robobt_p5
 % * DESCRIPTION:Encode an ASP solver in clingo to find the path of two robots, R1
 % * and R2 that need to move multiple objects to goal locations. The robots may not 
 % * hold multiple objects simultaneously unless it is a HEAVY object.
-% * The robots may only hold the HEAVY object together
-% * AUTHOR:	James Matthew Welch [JMW]
-% * SCHOOL: 	Arizona State University
-% * CLASS:	CSE471/598: Introduction to Artificial Intelligence
-% * INSTRUCTOR:	Joohyung Lee
-% * SECTION:	18115 
-% * TERM:	Spring 2014
+% * The robots may only hold the HEAVY object together.
+% * AUTHOR:     James Matthew Welch [JMW]
+% * SCHOOL:     Arizona State University
+% * CLASS:      CSE471/598: Introduction to Artificial Intelligence
+% * INSTRUCTOR: Joohyung Lee
+% * SECTION:    18115 
+% * TERM:       Spring 2014
 % ******************************************************************************/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % object declaration
@@ -180,6 +180,9 @@ action(RO,T) :- drop(R,RO,H,T).
 :- place(R,OB,T), has(R,OB,false,T).
 % robot cannot pickup any object if it already has the object (waste of an action)
 :- pickup(R,OB,T), has(R,OB,true,T).
+:- pickup(R,OB,T), carries(R,RO,H,true,T).
+:- pickup(RO,OB,T), carries(R,RO,H,true,T).
+
 % robot cannot pickup any object and another object at the same time (problems 2-5) Rule may be redundant since only 0/1 pickups allowed per T
 :- pickup(R,OBa,T), pickup(R,OBb,T), OBa!=OBb.
 % robot cannot place any object and another object at the same time (problems 2-5) Rule may be redundant since only 0/1 place allowed per T
@@ -276,65 +279,68 @@ action(RO,T) :- drop(R,RO,H,T).
 :- ron(R,6,6,T), move(R,down,T).
 
 %%%% TODO DELETE DEBUGGING CONDITIONS
-%% initial conditions for debugging (short path)
-:- not ron(r1,1,3,0).
-:- not ron(r2,2,2,0).
-:- not on(h,2,3,0).
-:- not on(a,3,4,0).
-:- not on(b,3,2,0).
-:- not on(c,4,3,0).
+%%% initial conditions for debugging (short path)
+%:- not ron(r1,1,3,0).
+%%:- not ron(r2,2,2,0).
+%%:- not on(h,2,3,0).
+%%:- not on(a,1,3,0).
+%:- not on(h,2,3,0).
+%%:- not ron(r2,1,3,0).
+%%:- not on(a,3,4,0).
+%%:- not on(b,3,2,0).
+%%:- not on(c,4,3,0).
+%%:- isheld(OB,true,0).
+%%:- lugged(H,true,0).
+%%
+%%% test actions
+%%%lift(r2,r1,h,0).
+%%%carries(r1,r2,h,false,0).
+%%%drop(r1,r2,h,2).
+%%%move(r1,right,1).
+%%
+%%
+%% final conditions
+%:- not on(h,3,3,maxstep).
+%:- not on(a,3,5,maxstep).
+%:- not on(b,3,1,maxstep).
+%:- not on(c,1,6,maxstep).
+%:- lugged(H,true,maxstep).
+%:- isheld(a,true,maxstep).
+%:- isheld(b,true,maxstep).
+%:- isheld(c,true,maxstep).
+%%%%%%%
+
+% initial conditions
+:- not ron(r1,1,6,0).
+:- not ron(r2,3,2,0).
+:- not on(a,1,2,0).
+:- not on(b,1,1,0).
+:- not on(c,5,1,0).
+:- not on(h,1,5,0).
+:- has(R,OB,true,0).
 :- isheld(OB,true,0).
 :- lugged(H,true,0).
-%
-%% test actions
-%%lift(r2,r1,h,0).
-%%carries(r1,r2,h,false,0).
-%%drop(r1,r2,h,2).
-%%move(r1,right,1).
-%
-%
-% final conditions
-:- not on(h,3,3,maxstep).
-:- not on(a,3,5,maxstep).
-:- not on(b,3,1,maxstep).
-:- not on(c,1,6,maxstep).
-:- lugged(H,true,maxstep).
-:- isheld(a,true,maxstep).
-:- isheld(b,true,maxstep).
-:- isheld(c,true,maxstep).
-%%%%%%
 
-%% initial conditions
-%:- not ron(r1,1,6,0).
-%:- not ron(r2,3,2,0).
-%:- not on(a,1,2,0).
-%:- not on(b,1,1,0).
-%:- not on(c,5,1,0).
-%:- not on(h,1,5,0).
-%:- has(R,OB,true,0).
-%:- isheld(OB,true,0).
-%:- lugged(H,true,0).
-%
-%% final conditions
-%:- not on(a,6,6,maxstep).
-%:- not on(b,5,3,maxstep).
-%:- not on(c,1,4,maxstep).
-%:- not on(h,4,1,maxstep).
-%:- has(R,OB,true,maxstep).
-%:- isheld(OB,true,maxstep).
-%:- lugged(H,true,maxstep).
+% final conditions
+:- not on(a,6,6,maxstep).
+:- not on(b,5,3,maxstep).
+:- not on(c,1,4,maxstep).
+:- not on(h,4,1,maxstep).
+:- has(R,OB,true,maxstep).
+:- isheld(OB,true,maxstep).
+:- lugged(H,true,maxstep).
 
 % hide variables that are constants
 #hide.
 % show only the variables that are relevant to the path
-%#show on/4.
-%#show ron/4.
+#show on/4.
+#show ron/4.
 #show move/3.
 #show pickup/3.
 #show place/3.
 #show isheld/3.
 #show has/4.
-%#show lugged/3.
-%#show carries/5.
+#show lugged/3.
+#show carries/5.
 #show lift/4.
 #show drop/4.
