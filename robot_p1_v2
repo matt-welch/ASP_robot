@@ -1,8 +1,7 @@
 %/*******************************************************************************
 % * FILENAME:	robobt_p1_v2	
-% * DESCRIPTION:Encode an ASP solver in clingo to find the path of a single robot R that needs
-%
-% * to move object a to location A
+% * DESCRIPTION:Encode an ASP solver in clingo to find the path of a single robot
+% * R that needs to move object a to location A
 % * AUTHOR:	James Matthew Welch [JMW]
 % * SCHOOL: 	Arizona State University
 % * CLASS:	CSE471/598: Introduction to Artificial Intelligence

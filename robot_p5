@@ -333,14 +333,14 @@ action(RO,T) :- drop(R,RO,H,T).
 % hide variables that are constants
 #hide.
 % show only the variables that are relevant to the path
-#show on/4.
-#show ron/4.
+%#show on/4.
+%#show ron/4.
 #show move/3.
 #show pickup/3.
 #show place/3.
-#show isheld/3.
-#show has/4.
-#show lugged/3.
-#show carries/5.
+%#show isheld/3.
+%#show has/4.
+%#show lugged/3.
+%#show carries/5.
 #show lift/4.
 #show drop/4.
